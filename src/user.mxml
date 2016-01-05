@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:page="freamwork.common.*"
+				width="100%" height="100%" creationComplete="initApp()" layout="horizontal">
+	<mx:Style>
+		VBox{
+			fontSize:13;
+		}
+	</mx:Style>
+	<mx:Script>
+		<![CDATA[
+			import user.UserFacade;
+			private function initApp():void{
+				var userFacade:UserFacade= UserFacade.getInstance(UserFacade.NAME);
+				userFacade.startup(this);
+			}
+			//被选中的值id
+			public var selectId:int = 0;
+			protected function dg_clickHandler(event:MouseEvent):void
+			{
+				if(dg.selectedItem != null){
+					selectId = dg.selectedItem.id;
+				}
+			}
+			
+			//格式化时间
+			private function formateDateHandler(item:Object,column:DataGridColumn):String{
+				return dateFormatter.format(item[column.dataField]);
+			}
+			[Bindable]
+			public var _pageSize:int = 17;
+			public var deleteFunction:Function=new Function();//删除
+			public var updateFunction:Function=new Function();//更新
+			public var detailFunction:Function=new Function();//详细
+		]]>
+	</mx:Script>
+	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD HH:NN:SS"/>
+	
+	<mx:VBox left="10" right="10" top="10" bottom="10" width="100%" height="100%"
+			 verticalAlign="middle">
+		<mx:HBox>
+			<mx:FormItem label="用户名:"><mx:TextInput id="userName"/></mx:FormItem>
+			<mx:FormItem label="真实姓名:"><mx:TextInput id="realName"/></mx:FormItem>
+			<mx:Button id="searchButton" label="查询"/>
+			<mx:Button id="add" label="添加"/>
+			<mx:Button id="del" label="删除"/>
+			<mx:Button id="refresh" label="刷新"/>
+		</mx:HBox>
+		<mx:DataGrid id="dg" width="100%" height="100%">
+			<mx:columns>
+				<mx:DataGridColumn id="checkbox" width="30"
+								   headerRenderer="freamwork.checkbox.CheckBoxRender"
+								   itemRenderer="freamwork.checkbox.CheckBoxRender" sortable="false"/>
+				<mx:DataGridColumn visible="false" dataField="id"/>
+				<mx:DataGridColumn dataField="uname" headerText="姓名" textAlign="center"/>
+				<mx:DataGridColumn dataField="nickname" headerText="真实姓名" textAlign="center"/>
+				<mx:DataGridColumn dataField="email" headerText="邮箱" textAlign="center"/>
+				<mx:DataGridColumn dataField="power" headerText="权限" textAlign="center"/>
+				<mx:DataGridColumn dataField="teacherid" headerText="教师ID" textAlign="center"/>
+				<mx:DataGridColumn dataField="createTime" headerText="创建时间"
+								   labelFunction="formateDateHandler" textAlign="center"/>
+				<mx:DataGridColumn dataField="updateTime" headerText="更新时间"
+								   labelFunction="formateDateHandler" textAlign="center"/>
+				<mx:DataGridColumn headerText="操作" textAlign="center">
+					<mx:itemRenderer>
+						<mx:Component>							
+							<mx:HBox horizontalAlign="center" horizontalGap="0">
+								<mx:LinkButton id="update" label="更新"
+											   click="{parentDocument.updateFunction(data)}"/>
+								<mx:LinkButton id="userdel" label="删除"
+											   click="{parentDocument.deleteFunction(data.id)}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+		<page:PageBar id="page" currentPage="0" pageSize="{_pageSize}" totalRows="0"/>
+	</mx:VBox>
+</mx:Application>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+  backgroundColor="#EEEEEE">
+  
+  <mx:RemoteObject id="roHello" destination="helloClass"/>
+  
+  <mx:Form>
+    <mx:FormItem label="First Name:">
+      <mx:TextInput id="fnameInput"/>
+    </mx:FormItem>
+    <mx:FormItem label="Last Name:">
+      <mx:TextInput id="lnameInput"/>
+      <mx:Button label="Send Args" 
+        click="roHello.concatValues(fnameInput.text, lnameInput.text)"/>
+    </mx:FormItem>
+  </mx:Form>
+
+  <mx:Label text="{roHello.concatValues.lastResult}"
+    fontSize="14" fontWeight="bold"/>
+  
+</mx:Application>

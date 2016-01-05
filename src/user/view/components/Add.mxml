@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				layout="vertical" showCloseButton="true" title="添加用户"
+				verticalAlign="middle" verticalGap="10">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+		]]>
+	</mx:Script>
+	
+	<mx:Form>
+		<mx:FormItem label="用户名:" labelWidth="60" required="true">
+			<mx:TextInput id="uname"/>
+		</mx:FormItem>
+		<mx:FormItem label="密    码:" labelWidth="60" required="true">
+			<mx:TextInput id="pwd" displayAsPassword="true"/>
+		</mx:FormItem>
+		<mx:FormItem id="pwfi" label="确定密码:" labelWidth="60" required="true">
+			<mx:TextInput id="pwd2" displayAsPassword="true"/>
+		</mx:FormItem>
+		<mx:FormItem label="真实姓名:" labelWidth="60">
+			<mx:TextInput id="nickname"/>
+		</mx:FormItem>
+		<mx:FormItem label="电子邮件:" labelWidth="60">
+			<mx:TextInput id="email"/>
+		</mx:FormItem>
+		<mx:FormItem label="权限:" labelWidth="60">
+			<mx:TextInput id="power"/>
+		</mx:FormItem>
+		<mx:FormItem label="教师ID:" labelWidth="60">
+			<mx:TextInput id="teacherid"/>
+		</mx:FormItem>
+		<!--<mx:FormItem label="创建时间:" labelWidth="60">
+			<mx:DateField id="createTime" width="165"
+						  showToday="true" yearNavigationEnabled="true"/>
+		</mx:FormItem>
+		<mx:FormItem label="更新时间:" labelWidth="60">
+			<mx:DateField id="updateTime" width="165"
+						  showToday="true" yearNavigationEnabled="true"/>
+		</mx:FormItem>-->
+	</mx:Form>
+	<mx:HBox bottom="15" width="100%" horizontalAlign="center">
+		<mx:Button id="sbumitButton" label="确定"/>
+		<mx:Spacer width="30"/>
+		<mx:Button label="取消" click="PopUpManager.removePopUp(this)"/>
+	</mx:HBox>
+</mx:TitleWindow>

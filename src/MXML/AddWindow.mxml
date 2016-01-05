@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="300" height="200" layout="absolute" title="增加用户" >
+		
+	<mx:Script>
+		<![CDATA[      
+			import com.flex.LogScript;
+			
+			import mx.events.FlexEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			// A reference to the TextInput control in which to put the result.
+			public var log:LogScript = new LogScript();
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(nameID.text != "" && value_.text != ""){
+					CursorManager.setBusyCursor();
+					info.text = "正在添加...";
+					log.name = nameID.text;
+					log.value = value_.text;
+					addLogData.addLog(log);
+				}else{
+					info.text = "用户名和密码不能为空";
+				}
+			}
+			
+			protected function addLogData_faultHandler(event:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+				info.text="添加失败";
+				
+			}
+			
+			protected function addLogData_resultHandler(event:ResultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+				nameID.text = "";
+				value_.text = "";
+				info.text = "添加成功";
+				info.text = "查询数据成功";
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				addLogData.list();
+			}
+			
+		]]>
+	</mx:Script> 
+	<mx:RemoteObject id="addLogData" destination="logDAO" fault="addLogData_faultHandler(event)"
+					 result="addLogData_resultHandler(event)"/>
+
+	<mx:VBox>
+		<mx:Form >
+			<mx:FormItem label="type" required="true">
+				<mx:TextInput id="nameID"/>
+			</mx:FormItem>
+			<mx:FormItem label="detail" required="true">
+				<mx:TextInput id="value_"/>
+			</mx:FormItem>
+			<mx:Text id="info" color="red"/>
+		</mx:Form>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="添加" click="button1_clickHandler(event)"/>
+		<mx:Spacer width="5%"/>
+		<mx:Button label="取消" click="PopUpManager.removePopUp(this);"/>
+	</mx:ControlBar>
+</mx:TitleWindow> 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical">
+  
+  <mx:Script>
+    <![CDATA[
+      import mx.controls.Alert;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      import mx.collections.ArrayCollection;
+      [Bindable]
+      private var myData:ArrayCollection
+      
+      private function resultHandler(event:ResultEvent):void
+      {
+        myData = event.result.contacts.row;
+      }
+      private function faultHandler(event:FaultEvent):void
+      {
+        Alert.show(event.fault.faultString, event.fault.faultCode);
+      }
+    ]]>
+  </mx:Script>
+  
+  <mx:HTTPService id="contactService" 
+    destination="contactsXML"
+    result="resultHandler(event)"
+    fault="faultHandler(event)"/>
+        
+  <mx:Button label="Get Data" click="contactService.send()"/>
+  
+  <mx:DataGrid dataProvider="{myData}"/>
+  
+</mx:Application>

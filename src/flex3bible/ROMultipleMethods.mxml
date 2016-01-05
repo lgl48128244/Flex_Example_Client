@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+  backgroundColor="#EEEEEE">
+  
+  <mx:Script>
+    <![CDATA[
+      import mx.collections.ArrayCollection;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      private var statesData:ArrayCollection;
+      [Bindable]
+      private var helloString:String;
+      
+      private function arrayHandler(event:ResultEvent):void
+      {
+        statesData = event.result as ArrayCollection;
+      }
+      private function helloHandler(event:ResultEvent):void
+      {
+        helloString = event.result as String;
+      }
+    ]]>
+  </mx:Script>
+  
+  <mx:RemoteObject id="roHello" destination="helloClass"
+    result="arrayHandler(event)">
+    <mx:method name="helloWorld" result="helloHandler(event)"/>
+    <mx:method name="getArray" result="arrayHandler(event)"/>
+  </mx:RemoteObject>
+  
+  <mx:Button label="Get String" click="roHello.helloWorld()"/>
+  <mx:Label text="{helloString}" fontSize="14"/>
+    
+  <mx:Button label="Get Array" click="roHello.getArray()"/>
+  <mx:DataGrid dataProvider="{statesData}"/>
+  
+</mx:Application>

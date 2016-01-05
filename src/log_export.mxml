@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:ns1="com.common.*"
+				xmlns:locdg="com.flex.*"
+				width="100%" height="100%" creationComplete="initApp()" layout="absolute">
+		<mx:Style>
+		HBox{
+			fontSize:13;
+		}
+	</mx:Style>
+	<mx:XML id="dp">  
+		<root>  
+			<folder label="模块配置">  
+				<item label="模块修改与添加"/>  
+			</folder>  
+			<folder label="日志配置">  
+				<item label="日志配置与修改"/>  
+			</folder>  
+			<folder label="输出方式配置">  
+				<item label="输出配置修改"/>  
+			</folder>  
+		</root>  
+	</mx:XML>  
+	<mx:Script>
+		<![CDATA[
+			import com.flex.LogScript;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import MXML.AddWindow;
+			import MXML.SimpleTitleWindowExample;
+			[Bindable]
+			public var log:LogScript=new LogScript();
+			[Bindable]
+			public var obj:ArrayCollection;//用于存放datagrid中的所有数据,以及所有复选框的状态
+			
+			/**
+			 * 全选
+			 */
+			protected function checkbox2_changeHandler(event:Event):void
+			{
+				var slc:Boolean = selectAllCheckBox.selected;
+				if(obj.length>0)
+				{
+					for(var i:Number=0;i<obj.length;i++)
+					{
+						obj.getItemAt(i).selected=slc;
+					}
+				}
+			}
+			/**
+			 * 反选
+			 */
+			protected function checkbox3_changeHandler(event:Event):void
+			{
+				if(obj.length>0)
+				{
+					for(var i:Number=0;i<obj.length;i++)
+					{
+						obj.getItemAt(i).selected=!obj.getItemAt(i).selected;
+					}
+				}
+			}
+			/**
+			 * 初始化
+			 */
+			public function initApp():void
+			{
+				CursorManager.setBusyCursor();
+				logData.list();
+				info.text="刷新成功！";
+			}
+			protected function logData_faultHandler(event:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+			}
+			
+			protected function logData_resultHandler(event:ResultEvent):void
+			{
+				// TODO Auto-generated method stub
+				obj = event.result as ArrayCollection;
+				CursorManager.removeBusyCursor();
+			}
+			/**
+			 *增加加
+			 */
+			private	var add:AddWindow;
+			protected function button1_addHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				add=AddWindow(PopUpManager.createPopUp( this, AddWindow , true));
+				PopUpManager.centerPopUp(add);
+			}
+			
+			protected function updateLogData_faultHandler(event:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+				info.text="修改数据失败";
+			}
+			
+			protected function updateLogData_resultHandler(event:ResultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+				logData.list();
+				info.text = "修改数据成功";
+			}
+			/**
+			 * 弹窗
+			 */
+			private var login:SimpleTitleWindowExample;
+			public function showWindow(data:Object):void {
+				login=SimpleTitleWindowExample(PopUpManager.createPopUp( this, SimpleTitleWindowExample , true));
+				login.param=data;
+				PopUpManager.centerPopUp(login);
+				login.save.addEventListener(MouseEvent.CLICK,saveHandler);
+			}
+			
+			/**
+			 * 修改
+			 */
+			public function saveHandler(event:MouseEvent):void
+			{
+				Alert.show("确认要修改吗？","修改提示",Alert.YES|Alert.NO,this,function(event:CloseEvent):void
+				{
+					if(event.detail==Alert.YES)
+					{
+						CursorManager.setBusyCursor();
+						info.text = "正在更新...";
+						log.pk=login.param.pk;
+						log.name=login.param.name;
+						log.value=login.param.value;
+						updateLogData.updateLog(log);
+					}
+					else if(event.detail==Alert.NO)
+					{
+						return;
+					}
+				},null,Alert.YES);	
+				PopUpManager.removePopUp(login);
+			}
+			public function showFunction(data:Object):void
+			{
+				returnedName.text =data.name+"\t"+data.value;
+			}
+			public function removeHandler():void
+			{
+				Alert.show("确认要删除吗？","删除提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void{
+					if (dg.selectedIndex != -1 && event.detail==Alert.YES)
+					{
+						log.pk=dg.selectedItem.pk;
+						log.name=dg.selectedItem.name;
+						obj.removeItemAt(deleteLogData.deleteByLog(log));
+						Alert.show("删除"+log.name+"成功");
+					}
+					else if(event.detail==Alert.NO) 
+					{
+						return;
+					}
+				},null,Alert.NO);
+				
+			}
+			private function deleteLog():void
+			{
+				//Alert.show(”Are you sure you want to”, “Confirmation”, Alert.YES|Alert.NO, this, confirmHandler, confirmIcon, Alert.NO);
+				//第一个参数是要显示的文本，第二个参数是窗口的标题，第三个参数是按纽，第四个参数是父窗体，第五个参数是关闭后要执行的动作函数，第六个参数是图标，第七个参数是默认的按纽
+				var arr:ArrayCollection=new ArrayCollection();
+				if(dg.selectedIndex==0)
+				{
+					Alert.show("请选择的删除的信息");
+					return;
+				}
+				Alert.show("确认要删除吗？","删除提示",Alert.YES|Alert.NO,this,function(event:CloseEvent):void
+				{
+					if(event.detail==Alert.YES && log.selected==true)
+					{
+						arr.addItem(log.pk);
+						CursorManager.setBusyCursor();
+						info.text = "正在正在删除...";
+						deleteLogData.deleteMore(arr);
+					}
+					else if(event.detail==Alert.NO)
+					{
+						return;
+					}
+				},null,Alert.YES);
+			}
+			protected function deleteLogData_faultHandler(event:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+				info.text="刪除数据失败";
+			}
+			
+			protected function deleteLogData_resultHandler(event:ResultEvent):void
+			{
+				// TODO Auto-generated method stub
+				CursorManager.removeBusyCursor();
+				logData.list();
+				info.text = "刪除数据成功";
+			}
+		]]>
+	</mx:Script>
+	<mx:RemoteObject id="deleteLogData" destination="logDAO"
+					 fault="deleteLogData_faultHandler(event)"
+					 result="deleteLogData_resultHandler(event)"/>
+	<mx:RemoteObject id="updateLogData" destination="logDAO"
+					 fault="updateLogData_faultHandler(event)"
+					 result="updateLogData_resultHandler(event)"/>
+	<mx:RemoteObject id="logData" destination="logDAO" fault="logData_faultHandler(event)"
+					 result="logData_resultHandler(event)"/>
+	<mx:HBox left="12" right="12" top="12" bottom="12" width="100%" height="100%">
+		<mx:VBox width="20%" height="100%">
+			<mx:Tree id="tree" width="100%" height="100%" dataProvider="{dp}" labelField="@label"
+					 rowCount="6" showRoot="false"/>  
+		</mx:VBox>
+		<mx:VBox width="80%" height="100%">
+			<mx:HBox width="100%" height="5%">
+				<mx:CheckBox id="selectAllCheckBox" label="全选"
+							 change="checkbox2_changeHandler(event)"/>
+				<mx:CheckBox label="反选" change="checkbox3_changeHandler(event)"/>
+				<mx:Button label="增加" click="button1_addHandler(event)"/>
+				<mx:Button label="刷新" click="initApp();"/>
+				<mx:Spacer width="35%"/>
+				<mx:Button label="详细信息" enabled="false"/>
+			</mx:HBox>
+			<mx:Text id="info" color="blue"/>
+			<mx:HBox width="100%" height="100%">
+				<mx:DataGrid id="dg" width="80%" height="100%" dataProvider="{obj}">
+					<mx:columns>
+						<mx:DataGridColumn width="30" textAlign="center">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CheckBox change="checkbox1_changeHandler(event)"
+												 selected="{data.selected}">
+										<mx:Script>
+											<![CDATA[
+												public function checkbox1_changeHandler(event:Event):void
+												{//将复选框的状态保存在obj中,防止出现复选框错乱的情况 
+													outerDocument.obj.getItemAt(outerDocument.dg.selectedIndex).selected=event.target.selected;
+												}
+											]]>
+										</mx:Script>
+									</mx:CheckBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn width="70" dataField="pk" headerText="ID"
+										   textAlign="center"/>
+						<mx:DataGridColumn width="130" dataField="name" headerText="姓名"
+										   textAlign="center"/>
+						<mx:DataGridColumn dataField="value" headerText="内容" textAlign="center"/>
+						<mx:DataGridColumn width="250" headerText="操作" textAlign="center">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:HBox textAlign="center">
+										<mx:LinkButton label="删除"
+													   click="{outerDocument.removeHandler()}"
+													   icon="@Embed('image/delete.gif')"
+													   toolTip="删除"/>
+										<mx:LinkButton label="修改"
+													   click="{outerDocument.showWindow(data)}"
+													   icon="@Embed('image/update.gif')"
+													   toolTip="修改"/>
+										<mx:LinkButton top="详情" label="详情"
+													   click="{outerDocument.showFunction(data)}"/>
+									</mx:HBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:VBox width="50%" height="100%">
+					<mx:TextArea id="returnedName" width="100%" height="100%">
+					</mx:TextArea>
+				</mx:VBox> 
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+</mx:Application>

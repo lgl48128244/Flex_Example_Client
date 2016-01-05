@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml"
+						  width="100%" horizontalAlign="center">
+	<mx:Metadata>
+		[Event(name="changePageEvent",type="freamwork.event.PageEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import freamwork.event.PageEvent;
+			
+			[Bindable]
+			private var _totalRows:int=0;//总记录数
+			[Bindable]
+			private var _currentPage:int=0;//当前页
+			private var _pageSize:int=30;//每页记录数
+			
+			[Bindable]
+			private var totalPage:int = 0;
+			
+			public function set totalRows(ptotal:int):void{
+				_totalRows=ptotal;
+				calPageCount();
+			}
+			public function get totalRows():int{
+				return _totalRows;
+			}
+			
+			[Bindable]
+			public function set currentPage(pcurrentPage:int):void{
+				_currentPage=pcurrentPage;
+				//      	_currentPage=this.nsPageNum.value-1;
+			}
+			public function get currentPage():int{
+				return _currentPage;
+			}
+			
+			[Bindable]
+			public function set pageSize(ipageSize:int):void{
+				_pageSize=ipageSize;
+				calPageCount();
+			}
+			public function get pageSize():int{
+				return _pageSize;
+			}
+			
+			private function calPageCount():void{
+				totalPage=(totalRows%pageSize==0)?(totalRows/pageSize):(totalRows/pageSize+1);
+				//         currentPage=0;
+			}
+			
+			public function first():void{//首页
+				var event:PageEvent = new PageEvent(PageEvent.PAGACHANGE);
+				this.nsPageNum.value=1;
+				currentPage=0;
+				event.currentPage=currentPage;
+				dispatchEvent(event);
+			}
+			
+			public function next():void{//下一页
+				var event:PageEvent = new PageEvent(PageEvent.PAGACHANGE);
+				this.nsPageNum.value=this.nsPageNum.value+1;
+				currentPage=currentPage+1
+				event.currentPage=currentPage;
+				dispatchEvent(event);
+			}
+			
+			public function previous():void{//上一页
+				var event:PageEvent = new PageEvent(PageEvent.PAGACHANGE);
+				this.nsPageNum.value=this.nsPageNum.value-1;
+				currentPage=currentPage-1;
+				event.currentPage=currentPage;
+				dispatchEvent(event);
+			}
+			
+			public function last():void{//最后一页
+				var event:PageEvent = new PageEvent(PageEvent.PAGACHANGE);
+				this.nsPageNum.value=totalPage;
+				currentPage=totalPage-1;
+				event.currentPage=currentPage;
+				dispatchEvent(event);
+			}
+			
+			public function getConentByPageNO():void{//到pageNO去
+				var event:PageEvent = new PageEvent(PageEvent.PAGACHANGE);
+				currentPage=  int(nsPageNum.value)-1 ;
+				event.currentPage=currentPage;
+				dispatchEvent(event);
+			}
+			
+			public function setRecordOfEveryPage():void{//设置每页显示记录数
+				var event:PageEvent = new PageEvent(PageEvent.PAGACHANGE);
+				currentPage=0;
+				event.currentPage=currentPage;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:NumberValidator id="numberValidator" domain="int" maxValue="{totalPage}" minValue="1"
+						property="value" source="{nsPageNum}" trigger="{lbtnJump}"
+						triggerEvent="click"/>
+		<mx:HBox width="100%" cornerRadius="0" horizontalAlign="center" verticalAlign="middle">
+			<mx:Button id="lbtnFirst" label="首页" click="first()" enabled="{lbtnPrevious.enabled}"/>
+			<mx:Button id="lbtnPrevious" label="上一页" click="previous()"
+					   enabled="{(currentPage-1)&gt;=0}"/>
+			<mx:Label id="lab" width="147" enabled="true"
+					  text="{(totalPage&gt;0?(currentPage+1):0)}/{totalPage}" textAlign="center"/>
+			<mx:Button id="lbtnNext" label="下一页" click="next()"
+					   enabled="{totalPage&gt;(currentPage+1)}"/>
+			<mx:Button id="lbtnLast" label="尾页" click="last()" enabled="{lbtnNext.enabled}"/>
+			<mx:NumericStepper id="nsPageNum" cornerRadius="0" enabled="{lbtnJump.enabled}"
+							   maximum="{totalPage}" minimum="1" stepSize="1"/>
+			<mx:Button id="lbtnJump" label="跳转" click="getConentByPageNO()"
+					   enabled="{totalPage&gt;1}"/>
+		</mx:HBox>
+</mx:ApplicationControlBar>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+  backgroundColor="#EEEEEE">
+  
+  <mx:RemoteObject id="roHello" destination="helloClass"/>
+    
+  <mx:Label text="Hello from BlazeDS!" fontSize="14" fontWeight="bold"/>
+  
+  <mx:Button label="Click to say hello" click="roHello.helloWorld()"/>
+  
+  <mx:Label text="{roHello.helloWorld.lastResult}"
+    fontSize="14" fontWeight="bold"/>
+  
+</mx:Application>

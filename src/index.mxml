@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%" height="100%" creationComplete="initApp()">
+	<mx:Style>
+		HBox{
+			fontSize:13;
+		}
+	</mx:Style>
+	<mx:XML id="dp">  
+		<root>  
+			<folder label="模块配置">  
+				<item label="模块修改与添加"/>  
+			</folder>  
+			<folder label="日志配置">  
+				<item label="日志配置与修改"/>  
+			</folder>  
+			<folder label="输出方式配置">  
+				<item label="输出配置修改"/>  
+			</folder>  
+		</root>  
+	</mx:XML>  
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			import mvc.ApplicationFacade;
+			private var facade:ApplicationFacade=ApplicationFacade.getInstance();
+			public function initApp():void{
+				facade.startup(this);
+			}
+			[Bindable]
+			public var obj:ArrayCollection;//用于存放datagrid中的所有数据,以及所有复选框的状态
+			//被选中的值id
+			public var selectId:int=0;
+			
+			protected function dg_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(dg.selectedItem != null){
+					selectId=dg.selectedItem.pk;
+				}
+			}
+			
+			/**
+			 * 全选
+			 */
+			protected function checkbox2_changeHandler(event:Event):void
+			{
+				var slc:Boolean = selectAllCheckBox.selected;
+				if(obj.length>0)
+				{
+					for(var i:Number=0;i<obj.length;i++)
+					{
+						obj.getItemAt(i).selected=slc;
+					}
+				}
+			}
+			/**
+			 * 反选
+			 */
+			protected function checkbox3_changeHandler(event:Event):void
+			{
+				if(obj.length>0)
+				{
+					for(var i:Number=0;i<obj.length;i++)
+					{
+						obj.getItemAt(i).selected=!obj.getItemAt(i).selected;
+					}
+				}
+			}
+			
+			public function detailResult(data:Object):void
+			{
+				returnedName.text =data.name+"\t"+data.value;
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox left="10" right="10" top="10" bottom="10" width="100%" height="100%">
+		<mx:VBox width="20%" height="100%">
+			<mx:Tree id="tree" width="100%" height="100%" dataProvider="{dp}" labelField="@label"
+					 rowCount="6" showRoot="false"/>  
+		</mx:VBox>
+		<mx:VBox width="80%" height="100%">
+			<mx:HBox width="100%" height="5%">
+				<mx:CheckBox id="selectAllCheckBox" label="全选"
+							 change="checkbox2_changeHandler(event)"/>
+				<mx:CheckBox label="反选" change="checkbox3_changeHandler(event)"/>
+				<mx:Button label="增加" id="add"/>
+				<mx:Button label="删除" id="deleteButton" enabled="{dg.selectedIndex==-1?false:true}"/>
+				<mx:Button label="修改" id="editButton" enabled="{dg.selectedIndex==-1?false:true}"/>
+				<mx:Button label="刷新" id="refresh"/>
+				<mx:Spacer width="35%"/>
+				<mx:Button label="详细信息" id="detail"/>
+			</mx:HBox>
+			<mx:Text id="info" color="blue"/>
+			<mx:HBox width="100%" height="100%">
+				<mx:DataGrid id="dg" width="80%" height="100%" click="dg_clickHandler(event)"
+							 dataProvider="{obj}" >
+					<mx:columns>
+						<mx:DataGridColumn id="Btns" width="30" editable="false" textAlign="center">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CheckBox change="checkbox1_changeHandler(event)"
+												 selected="{data.selected}">
+										<mx:Script>
+											<![CDATA[
+												public function checkbox1_changeHandler(event:Event):void
+												{//将复选框的状态保存在obj中,防止出现复选框错乱的情况 
+													outerDocument.obj.getItemAt(outerDocument.dg.selectedIndex).selected=event.target.selected;
+												}
+											]]>
+										</mx:Script>
+									</mx:CheckBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn width="70" dataField="pk" editable="false" headerText="ID"
+										   textAlign="center"/>
+						<mx:DataGridColumn width="130" dataField="name" headerText="姓名"
+										   textAlign="center"/>
+						<mx:DataGridColumn dataField="value" headerText="内容" textAlign="center"/>
+						<mx:DataGridColumn width="250" editable="false" headerText="操作"
+										   textAlign="center">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:HBox textAlign="center">
+										<mx:LinkButton id="link_delete" label="删除"
+													   icon="@Embed('image/delete.gif')"
+													   toolTip="删除"/>
+										<mx:LinkButton id="edit" label="编辑"
+													   icon="@Embed('image/update.gif')"
+													   toolTip="修改"/>
+										<mx:LinkButton id="detail" label="详情"/>
+									</mx:HBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:VBox width="50%" height="100%">
+					<mx:TextArea id="returnedName" width="100%" height="100%">
+					</mx:TextArea>
+				</mx:VBox> 
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+</mx:Application>

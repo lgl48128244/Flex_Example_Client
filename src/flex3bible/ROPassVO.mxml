@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				backgroundColor="#EEEEEE">
+  
+  <mx:Script>
+    <![CDATA[
+      import mx.controls.Alert;
+      import mx.rpc.events.ResultEvent;
+      import com.flex.Contact;
+      
+      [Bindable]
+      private var myContact:Contact;
+      
+      private function setContact():void
+      {
+        myContact = new Contact();
+        myContact.firstName = fnameInput.text;
+        myContact.lastName = lnameInput.text;
+        roHello.setContact(myContact);
+      }
+      private function getContact():void
+      {
+        roHello.getContact(fnameInput.text, lnameInput.text);
+      }
+      private function setHandler(event:ResultEvent):void
+      {
+        Alert.show(event.result as String, "Received String");
+      }
+      private function getHandler(event:ResultEvent):void
+      {
+        myContact = event.result as Contact;
+        Alert.show("Contact VO received from server: " +
+          myContact.firstName + " " + myContact.lastName,
+          "Received Contact value object");
+      }
+      
+    ]]>
+  </mx:Script>
+  
+  <mx:RemoteObject id="roHello" destination="helloClass">
+    <mx:method name="setContact" result="setHandler(event)"/>
+    <mx:method name="getContact" result="getHandler(event)"/>
+  </mx:RemoteObject>
+  
+  <mx:Form>
+    <mx:FormItem label="First Name:">
+      <mx:TextInput id="fnameInput"/>
+    </mx:FormItem>
+    <mx:FormItem label="Last Name:">
+      <mx:TextInput id="lnameInput"/>
+    </mx:FormItem>
+    <mx:ControlBar>
+      <mx:Button label="Send Object" click="setContact()"/>
+      <mx:Button label="Receive Object" click="getContact()"/>  
+    </mx:ControlBar>
+  </mx:Form>
+
+</mx:Application>

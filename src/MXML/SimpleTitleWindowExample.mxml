@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="400" height="400" layout="absolute" >
+	<mx:Style>
+		VBox{
+			fontSize:14;
+		}
+	</mx:Style>
+    <mx:Script>
+        <![CDATA[      
+            import mx.managers.PopUpManager;
+            // A reference to the TextInput control in which to put the result.
+			private var _param:Object;
+			
+			public function get param():Object
+			{
+				_param.name = nameId.text;
+				_param.value =valued.text;
+				_param.pk = pk.text;
+				return _param;
+			}
+
+			public function set param(value:Object):void
+			{
+				_param = value;
+				nameId.text=value.name;
+				valued.text=value.value;
+				pk.text=value.pk;
+			}
+
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);    
+			}
+           
+        ]]>
+    </mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:Form width="100%" height="80%">
+			<mx:FormItem visible="false">
+				<mx:TextInput id="pk"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%" height="10%" label="姓名">
+				<mx:TextInput id="nameId"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%" height="90%" label="内容">
+				<mx:TextInput id="valued" width="100%" height="100%"/>
+			</mx:FormItem>
+		</mx:Form>
+		<mx:ControlBar horizontalAlign="right">
+			<mx:Button id="save" label="确定"/>
+			<mx:Spacer width="5%"/>
+			<mx:Button label="取消" click="PopUpManager.removePopUp(this);"/>
+		</mx:ControlBar>
+	</mx:VBox>
+</mx:TitleWindow>  
